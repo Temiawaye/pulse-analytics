@@ -55,12 +55,13 @@ referrer, permissions, and HSTS headers.
 - Deleting a website cascades to its visitors, sessions, page views, and rate
   counters through database foreign keys.
 
-The production operator must schedule a daily database job that deletes page
-views and sessions older than 90 days, removes visitors with no remaining page
-views or sessions, and deletes rate-limit windows older than 24 hours. The job
-must run against the production database using server-only credentials. Until
-that job is enabled during deployment, this documented window is a deployment
-blocker rather than a claim that data is already purged automatically.
+The production operator must schedule `npm run db:retention -- --execute` as a
+daily database job. It deletes page views and sessions older than 90 days,
+removes visitors with no remaining page views or sessions, and deletes
+rate-limit windows older than 24 hours. The job must run against the production
+database using server-only credentials. Until that job is enabled during
+deployment, this documented window is a deployment blocker rather than a claim
+that data is already purged automatically.
 
 ## Query performance review
 

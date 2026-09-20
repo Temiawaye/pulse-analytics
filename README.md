@@ -74,6 +74,11 @@ npm run db:seed
 it replaces only the website with tracking ID `site_demo_pulse_analytics` and
 does not delete unrelated user data.
 
+Production provisioning, migrations, health monitoring, retention scheduling,
+and portfolio installation are covered in
+[`docs/deployment.md`](docs/deployment.md). `GET /api/health` verifies both the
+application and its database connection without exposing credentials.
+
 ## Quality checks
 
 ```bash
