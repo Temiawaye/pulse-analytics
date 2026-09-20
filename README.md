@@ -7,9 +7,9 @@ and present useful traffic insights in an authenticated dashboard.
 ## Current status
 
 The product rules, application foundation, PostgreSQL data model,
-authentication, website management, and event ingestion are complete.
-Analytics views remain intentional placeholders while reporting is
-implemented.
+authentication, website management, event ingestion, tracker, and analytics
+query layer are complete. Dashboard views remain intentional placeholders
+while their reporting interface is implemented.
 
 ## Event ingestion
 
