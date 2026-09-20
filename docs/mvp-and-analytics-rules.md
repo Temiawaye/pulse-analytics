@@ -10,8 +10,8 @@ Pulse Analytics will:
 - let an authenticated user register and manage one or more websites;
 - issue each website a unique public tracking ID that does not reveal its
   internal database ID;
-- accept real page-view events from a registered website through `POST
-  /api/track`;
+- accept real page-view events through `POST /api/track` from a registered
+  website;
 - identify a visitor using a random, website-scoped anonymous ID without
   collecting names, email addresses, or full IP addresses;
 - group page views into sessions using a 30-minute inactivity timeout;
@@ -88,11 +88,11 @@ sessions, the dashboard shows no data.
 
 ## Supported date filters
 
-| Filter | Range | Chart bucket |
-| --- | --- | --- |
-| 24 hours | `to - 24 hours` through `to` | Hour |
-| 7 days | `to - 7 days` through `to` | Day |
-| 30 days | `to - 30 days` through `to` | Day |
+| Filter   | Range                        | Chart bucket |
+| -------- | ---------------------------- | ------------ |
+| 24 hours | `to - 24 hours` through `to` | Hour         |
+| 7 days   | `to - 7 days` through `to`   | Day          |
+| 30 days  | `to - 30 days` through `to`  | Day          |
 
 The selected range and website live in URL search parameters so filtered views
 can be refreshed, bookmarked, and shared without relying on client memory.
