@@ -8,6 +8,7 @@ import { loginSchema } from "@/lib/validation/auth";
 export const { auth, handlers, signIn, signOut } = NextAuth({
   pages: { signIn: "/login" },
   session: { strategy: "jwt" },
+  useSecureCookies: process.env.NODE_ENV === "production",
   providers: [
     Credentials({
       credentials: {

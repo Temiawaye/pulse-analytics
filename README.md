@@ -21,6 +21,10 @@ and applies a database-backed per-website rate limit. Raw IP addresses are not
 stored; the limiter uses a secret-keyed hash that cannot be reversed without
 the server secret.
 
+The complete visitor-data inventory, retention windows, deletion behavior,
+and operator responsibilities are documented in
+[`docs/privacy-and-retention.md`](docs/privacy-and-retention.md).
+
 ## Tracker installation
 
 Add the script before the closing `</body>` tag or anywhere with `defer`:
