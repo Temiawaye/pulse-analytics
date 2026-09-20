@@ -2,13 +2,15 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 export function WebsiteSelector({
   websites,
+  defaultId,
 }: {
   websites: { id: string; name: string }[];
+  defaultId?: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const search = useSearchParams();
-  const selected = search.get("website") ?? "";
+  const selected = search.get("website") ?? defaultId ?? "";
   return (
     <label className="text-sm font-medium text-slate-700">
       <span className="sr-only">Website</span>

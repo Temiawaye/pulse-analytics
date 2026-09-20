@@ -8,8 +8,8 @@ and present useful traffic insights in an authenticated dashboard.
 
 The product rules, application foundation, PostgreSQL data model,
 authentication, website management, event ingestion, tracker, and analytics
-query layer are complete. Dashboard views remain intentional placeholders
-while their reporting interface is implemented.
+query layer are complete. The responsive dashboard renders real database
+results across Overview, Pages, Visitors, Sources, and Settings.
 
 ## Event ingestion
 

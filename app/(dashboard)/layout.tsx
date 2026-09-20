@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 import { WebsiteSelector } from "@/components/dashboard/website-selector";
+import { DateRangeSelector } from "@/components/dashboard/date-range-selector";
 import { requireUser } from "@/lib/auth/require-user";
 import { db } from "@/lib/db/client";
 import { signOut } from "@/auth";
@@ -34,7 +35,10 @@ export default async function DashboardLayout({ children }: LayoutProps<"/">) {
       </aside>
       <div className="min-w-0">
         <header className="flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-5 py-3 sm:px-8">
-          <WebsiteSelector websites={websites} />
+          <div className="flex flex-wrap items-center gap-2">
+            <WebsiteSelector websites={websites} defaultId={websites[0]?.id} />
+            <DateRangeSelector />
+          </div>
           <form
             action={async () => {
               "use server";
