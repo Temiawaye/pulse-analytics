@@ -1,7 +1,7 @@
 import { DistributionChart } from "@/components/charts/distribution-chart";
 import { TrafficChart } from "@/components/charts/traffic-chart";
 import { EmptyState } from "@/components/dashboard/empty-state";
-import { MetricCard } from "@/components/dashboard/metric-card";
+import { LiveOverview } from "@/components/dashboard/live-overview";
 import {
   resolveDashboardScope,
   type DashboardSearchParams,
@@ -57,40 +57,18 @@ export default async function OverviewPage({
           Traffic for {context.website.domain} over the selected period.
         </p>
       </header>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard
-          label="Page views"
-          value={summary.pageViews.toLocaleString()}
-          hint="Accepted page-view events"
-        />
-        <MetricCard
-          label="Unique visitors"
-          value={summary.uniqueVisitors.toLocaleString()}
-          hint="Distinct anonymous visitors"
-        />
-        <MetricCard
-          label="Bounce rate"
-          value={
-            summary.bounceRate === null
-              ? "—"
-              : `${summary.bounceRate.toFixed(1)}%`
-          }
-          hint="Completed one-page sessions"
-        />
-        <MetricCard
-          label="Average duration"
-          value={formatDuration(summary.averageSessionDuration)}
-          hint="Completed sessions"
-        />
-      </div>
-      {summary.pageViews === 0 ? (
-        <div className="mt-6">
-          <EmptyState
-            title="No analytics yet"
-            message="Install the tracking script and visit your website. New page views will appear here."
-          />
-        </div>
-      ) : (
+      <LiveOverview
+        key={`${context.website.id}-${context.range.key}`}
+        websiteId={context.website.id}
+        range={context.range.key}
+        initialSummary={summary}
+        initialRecent={recent.map((item) => ({
+          ...item,
+          createdAt: item.createdAt.toISOString(),
+        }))}
+        initialRefreshedAt={new Date().toISOString()}
+      />
+      {summary.pageViews > 0 && (
         <>
           <Panel title="Traffic over time" className="mt-6">
             <TrafficChart
@@ -140,32 +118,6 @@ export default async function OverviewPage({
               />
             </Panel>
           </div>
-          <Panel title="Recent activity" className="mt-6">
-            <div className="divide-y divide-slate-100">
-              {recent.map((item) => (
-                <article
-                  key={item.id}
-                  className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm"
-                >
-                  <div>
-                    <p className="font-medium text-slate-900">
-                      {item.title || item.path}
-                    </p>
-                    <p className="text-slate-500">
-                      {item.path} · {item.session.device} ·{" "}
-                      {item.session.browser}
-                    </p>
-                  </div>
-                  <time
-                    className="text-slate-500"
-                    dateTime={item.createdAt.toISOString()}
-                  >
-                    {item.createdAt.toLocaleString()}
-                  </time>
-                </article>
-              ))}
-            </div>
-          </Panel>
         </>
       )}
     </section>
@@ -226,9 +178,4 @@ function Table({
       </table>
     </div>
   );
-}
-function formatDuration(seconds: number | null) {
-  if (seconds === null) return "—";
-  if (seconds < 60) return `${Math.round(seconds)}s`;
-  return `${Math.floor(seconds / 60)}m ${Math.round(seconds % 60)}s`;
 }

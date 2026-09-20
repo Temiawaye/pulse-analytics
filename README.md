@@ -9,7 +9,8 @@ and present useful traffic insights in an authenticated dashboard.
 The product rules, application foundation, PostgreSQL data model,
 authentication, website management, event ingestion, tracker, and analytics
 query layer are complete. The responsive dashboard renders real database
-results across Overview, Pages, Visitors, Sources, and Settings.
+results across Overview, Pages, Visitors, Sources, and Settings. Overview
+metrics and recent activity refresh every 30 seconds while the page is visible.
 
 ## Event ingestion
 
