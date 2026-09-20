@@ -6,9 +6,9 @@ and present useful traffic insights in an authenticated dashboard.
 
 ## Current status
 
-The product rules and application foundation are complete. The dashboard routes
-currently show intentional placeholders while the database, authentication,
-ingestion, and reporting phases are implemented.
+The product rules, application foundation, and PostgreSQL data model are
+complete. The dashboard routes currently show intentional placeholders while
+authentication, ingestion, and reporting are implemented.
 
 ## Local setup
 
@@ -26,6 +26,22 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Do not commit `.env.local`
 or any production credentials.
+
+## Database
+
+The application uses Prisma with PostgreSQL. For a serverless provider such as
+Supabase, configure a transaction-pooler URL as `DATABASE_URL` and a direct or
+session-pooler URL as `DIRECT_URL`.
+
+```bash
+npm run db:generate
+npm run db:deploy
+npm run db:seed
+```
+
+`db:deploy` applies committed migrations. The development seed is repeatable:
+it replaces only the website with tracking ID `site_demo_pulse_analytics` and
+does not delete unrelated user data.
 
 ## Quality checks
 

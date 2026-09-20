@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  createdAt DateTime  @default(now()) @map("created_at")
+  websites  Website[]
+
+  @@map("users")
+}
+
+model Website {
+  id         String     @id @default(cuid())
+  userId     String     @map("user_id")
+  name       String
+  domain     String
+  trackingId String     @unique @map("tracking_id")
+  createdAt  DateTime   @default(now()) @map("created_at")
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  visitors   Visitor[]
+  sessions   Session[]
+  pageViews  PageView[]
+
+  @@index([userId])
+  @@map("websites")
+}
+
+model Visitor {
+  id          String     @id @default(cuid())
+  websiteId   String     @map("website_id")
+  anonymousId String     @map("anonymous_id")
+  firstSeenAt DateTime   @default(now()) @map("first_seen_at")
+  lastSeenAt  DateTime   @default(now()) @map("last_seen_at")
+  website     Website    @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  sessions    Session[]
+  pageViews   PageView[]
+
+  @@unique([websiteId, anonymousId])
+  @@unique([id, websiteId])
+  @@map("visitors")
+}
+
+model Session {
+  id             String     @id @default(cuid())
+  websiteId      String     @map("website_id")
+  visitorId      String     @map("visitor_id")
+  referrer       String?
+  device         String
+  browser        String
+  country        String?
+  startedAt      DateTime   @default(now()) @map("started_at")
+  lastActivityAt DateTime   @default(now()) @map("last_activity_at")
+  website        Website    @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  visitor        Visitor    @relation(fields: [visitorId, websiteId], references: [id, websiteId], onDelete: Cascade)
+  pageViews      PageView[]
+
+  @@unique([id, websiteId, visitorId])
+  @@index([websiteId, startedAt])
+  @@index([visitorId, websiteId])
+  @@map("sessions")
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  websiteId String   @map("website_id")
+  visitorId String   @map("visitor_id")
+  sessionId String   @map("session_id")
+  path      String
+  title     String?
+  referrer  String?
+  createdAt DateTime @default(now()) @map("created_at")
+  website   Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  visitor   Visitor  @relation(fields: [visitorId, websiteId], references: [id, websiteId], onDelete: Cascade)
+  session   Session  @relation(fields: [sessionId, websiteId, visitorId], references: [id, websiteId, visitorId], onDelete: Cascade)
+
+  @@index([websiteId, createdAt])
+  @@index([websiteId, path])
+  @@index([visitorId, websiteId])
+  @@index([sessionId, websiteId, visitorId])
+  @@map("page_views")
+}

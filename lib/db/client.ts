@@ -1,0 +1,26 @@
+import "server-only";
+
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "@/generated/prisma/client";
+
+import { env } from "@/lib/env";
+
+if (!env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is required for database access");
+}
+
+const globalForPrisma = globalThis as unknown as {
+  prisma?: PrismaClient;
+};
+
+const adapter = new PrismaPg({ connectionString: env.DATABASE_URL });
+
+export const db =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    adapter,
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = db;
+}

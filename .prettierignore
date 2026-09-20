@@ -1,5 +1,6 @@
 .next
 node_modules
+generated
 package-lock.json
 .env.example
 .gitignore
