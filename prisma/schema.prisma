@@ -19,19 +19,33 @@ model User {
 }
 
 model Website {
-  id         String     @id @default(cuid())
-  userId     String     @map("user_id")
+  id         String               @id @default(cuid())
+  userId     String               @map("user_id")
   name       String
   domain     String
-  trackingId String     @unique @map("tracking_id")
-  createdAt  DateTime   @default(now()) @map("created_at")
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trackingId String               @unique @map("tracking_id")
+  createdAt  DateTime             @default(now()) @map("created_at")
+  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   visitors   Visitor[]
   sessions   Session[]
   pageViews  PageView[]
+  rateLimits IngestionRateLimit[]
 
   @@index([userId])
   @@map("websites")
+}
+
+model IngestionRateLimit {
+  id           String   @id @default(cuid())
+  websiteId    String   @map("website_id")
+  identityHash String   @map("identity_hash")
+  windowStart  DateTime @map("window_start")
+  count        Int      @default(1)
+  website      Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@unique([websiteId, identityHash, windowStart])
+  @@index([windowStart])
+  @@map("ingestion_rate_limits")
 }
 
 model Visitor {

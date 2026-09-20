@@ -7,8 +7,18 @@ and present useful traffic insights in an authenticated dashboard.
 ## Current status
 
 The product rules, application foundation, PostgreSQL data model,
-authentication, and website management are complete. Analytics views remain
-intentional placeholders while ingestion and reporting are implemented.
+authentication, website management, and event ingestion are complete.
+Analytics views remain intentional placeholders while reporting is
+implemented.
+
+## Event ingestion
+
+`POST /api/track` accepts validated `page_view` events from a website's exact
+registered origin. It strips query strings, derives device and browser details
+on the server, groups activity into 30-minute sessions, limits payload size,
+and applies a database-backed per-website rate limit. Raw IP addresses are not
+stored; the limiter uses a secret-keyed hash that cannot be reversed without
+the server secret.
 
 ## Local setup
 
