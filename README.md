@@ -72,7 +72,9 @@ npm run db:seed
 
 `db:deploy` applies committed migrations. The development seed is repeatable:
 it replaces only the website with tracking ID `site_demo_pulse_analytics` and
-does not delete unrelated user data.
+does not delete unrelated user data. It runs only when
+`ALLOW_DATABASE_SEED=true`; keep that flag disabled when the database contains
+production traffic.
 
 Production provisioning, migrations, health monitoring, retention scheduling,
 and portfolio installation are covered in

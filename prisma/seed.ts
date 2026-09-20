@@ -10,6 +10,11 @@ const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
   throw new Error("DATABASE_URL is required to seed the database");
 }
+if (process.env.ALLOW_DATABASE_SEED !== "true") {
+  throw new Error(
+    "Set ALLOW_DATABASE_SEED=true only when it is safe to modify demo data",
+  );
+}
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString }),

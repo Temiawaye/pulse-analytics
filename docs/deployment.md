@@ -1,17 +1,22 @@
 # Production deployment runbook
 
 Phase 11 is complete only after every item below is performed against real
-production services and a real tracked website. Do not reuse development
-credentials in production.
+production services and a real tracked website.
 
-## 1. Provision isolated services
+## 1. Provision services
 
-1. Keep the current Supabase project for development.
-2. Create a separate Supabase project for production in the nearest suitable
-   region.
-3. Enable the production project's automated backups. Record the backup
+For this portfolio deployment, the current Supabase project is intentionally
+shared by local development and production. This reduces setup cost, but local
+commands operate on live data after launch. A separate production project
+should be introduced before adding collaborators, risky migrations, or
+business-critical traffic.
+
+1. Enable the current Supabase project's automated backups. Record the backup
    retention window and perform a restore drill before launch.
-4. Create a Vercel project from this repository and deploy the `develop` branch
+2. Do not reset the database, run development migrations, or run the seed
+   against it after real traffic begins. Use `npm run db:deploy` for committed
+   migrations.
+3. Create a Vercel project from this repository and deploy the `develop` branch
    to Preview before promoting the approved production branch.
 
 ## 2. Configure production environment
@@ -25,8 +30,10 @@ Set these encrypted variables in Vercel Production settings:
 | `DATABASE_URL` | Production Supabase transaction-pooler URL, normally port 6543 |
 | `DIRECT_URL`   | Production direct or session-pooler URL, normally port 5432    |
 
-Set separate Preview values that point only to the development database. Never
-copy values into source control or expose them through a `NEXT_PUBLIC_` name.
+Because the database is shared, do not configure database variables for
+untrusted Preview deployments. If a trusted Preview must connect to Supabase,
+understand that it can read and modify live data. Never copy values into source
+control or expose them through a `NEXT_PUBLIC_` name.
 
 ## 3. Migrate and verify
 
@@ -38,7 +45,7 @@ npm run db:deploy
 npm run build
 ```
 
-Do not run the development seed against production. Confirm that the
+Keep `ALLOW_DATABASE_SEED` unset or set to `false` in production. Confirm that the
 `GET /api/health` request returns HTTP 200 with
 `{"status":"ok","database":"reachable"}`.
 Configure an uptime monitor to alert on a non-200 response without attaching
