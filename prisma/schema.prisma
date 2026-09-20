@@ -8,11 +8,12 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  name      String
-  email     String    @unique
-  createdAt DateTime  @default(now()) @map("created_at")
-  websites  Website[]
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String?   @map("password_hash")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  websites     Website[]
 
   @@map("users")
 }

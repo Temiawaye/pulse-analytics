@@ -1,8 +1,18 @@
 import Link from "next/link";
 
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
+import { WebsiteSelector } from "@/components/dashboard/website-selector";
+import { requireUser } from "@/lib/auth/require-user";
+import { db } from "@/lib/db/client";
+import { signOut } from "@/auth";
 
-export default function DashboardLayout({ children }: LayoutProps<"/">) {
+export default async function DashboardLayout({ children }: LayoutProps<"/">) {
+  const user = await requireUser();
+  const websites = await db.website.findMany({
+    where: { userId: user.id },
+    select: { id: true, name: true },
+    orderBy: { createdAt: "asc" },
+  });
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[15rem_1fr]">
       <aside className="border-b border-slate-200 bg-white px-4 py-4 lg:sticky lg:top-0 lg:h-screen lg:border-r lg:border-b-0 lg:px-5 lg:py-6">
@@ -24,8 +34,20 @@ export default function DashboardLayout({ children }: LayoutProps<"/">) {
       </aside>
       <div className="min-w-0">
         <header className="flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-5 py-3 sm:px-8">
-          <p className="text-sm font-medium text-slate-700">All websites</p>
-          <p className="text-sm text-slate-500">Last 7 days</p>
+          <WebsiteSelector websites={websites} />
+          <form
+            action={async () => {
+              "use server";
+              await signOut({ redirectTo: "/login" });
+            }}
+          >
+            <button
+              className="text-sm font-medium text-slate-600 hover:text-slate-950"
+              type="submit"
+            >
+              Sign out
+            </button>
+          </form>
         </header>
         <main className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 sm:py-10">
           {children}

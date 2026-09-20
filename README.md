@@ -6,9 +6,9 @@ and present useful traffic insights in an authenticated dashboard.
 
 ## Current status
 
-The product rules, application foundation, and PostgreSQL data model are
-complete. The dashboard routes currently show intentional placeholders while
-authentication, ingestion, and reporting are implemented.
+The product rules, application foundation, PostgreSQL data model,
+authentication, and website management are complete. Analytics views remain
+intentional placeholders while ingestion and reporting are implemented.
 
 ## Local setup
 
