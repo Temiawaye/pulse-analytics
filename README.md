@@ -20,6 +20,22 @@ and applies a database-backed per-website rate limit. Raw IP addresses are not
 stored; the limiter uses a secret-keyed hash that cannot be reversed without
 the server secret.
 
+## Tracker installation
+
+Add the script before the closing `</body>` tag or anywhere with `defer`:
+
+```html
+<script
+  defer
+  data-website-id="site_your_tracking_id"
+  src="https://your-analytics-domain.example/tracker.js"
+></script>
+```
+
+The tracker ignores localhost by default. To intentionally collect local
+traffic, add `data-track-localhost="true"`. It stores a random, website-scoped
+anonymous ID in first-party local storage and never sends URL query strings.
+
 ## Local setup
 
 Requirements:
