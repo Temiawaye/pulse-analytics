@@ -88,7 +88,7 @@ export default async function DocsPage({
               and live connection verification.{" "}
               <Link
                 className="font-semibold underline underline-offset-4"
-                href="/settings"
+                href="/websites"
               >
                 Create a website
               </Link>
@@ -144,7 +144,7 @@ export default async function DocsPage({
               </>
             )}
             <Link
-              href="/settings"
+              href="/websites"
               className="font-medium text-emerald-700 underline underline-offset-4"
             >
               add it in Settings
@@ -284,7 +284,7 @@ export default async function DocsPage({
           ) : (
             <Link
               className="button-primary mt-5 inline-flex text-sm"
-              href="/settings"
+              href="/websites"
             >
               Create a website to verify
             </Link>

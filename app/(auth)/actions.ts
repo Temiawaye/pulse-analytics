@@ -47,7 +47,7 @@ export async function register(
   await signIn("credentials", {
     email,
     password: parsed.data.password,
-    redirectTo: "/settings",
+    redirectTo: "/websites",
   });
-  redirect("/settings");
+  redirect("/websites");
 }

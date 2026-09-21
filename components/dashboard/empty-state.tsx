@@ -16,7 +16,7 @@ export function EmptyState({
         {message}
       </p>
       {setup && (
-        <Link className="button-primary mt-5 inline-flex" href="/settings">
+        <Link className="button-primary mt-5 inline-flex" href="/websites">
           Add a website
         </Link>
       )}

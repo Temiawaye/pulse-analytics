@@ -39,19 +39,35 @@ export default async function DashboardLayout({ children }: LayoutProps<"/">) {
             <WebsiteSelector websites={websites} defaultId={websites[0]?.id} />
             <DateRangeSelector />
           </div>
-          <form
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/login" });
-            }}
-          >
-            <button
-              className="text-sm font-medium text-slate-600 hover:text-slate-950"
-              type="submit"
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-sm font-semibold text-slate-900">
+                {user.name}
+              </p>
+              <p className="hidden max-w-48 truncate text-xs text-slate-500 sm:block">
+                {user.email}
+              </p>
+            </div>
+            <span
+              aria-hidden="true"
+              className="grid size-9 place-items-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-800"
             >
-              Sign out
-            </button>
-          </form>
+              {user.name?.slice(0, 1).toUpperCase() ?? "U"}
+            </span>
+            <form
+              action={async () => {
+                "use server";
+                await signOut({ redirectTo: "/login" });
+              }}
+            >
+              <button
+                className="text-sm font-medium text-slate-600 hover:text-slate-950"
+                type="submit"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
         </header>
         <main className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 sm:py-10">
           {children}
