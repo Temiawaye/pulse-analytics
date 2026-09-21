@@ -1,31 +1,25 @@
+import { Icon } from "@iconify/react";
+import chartIcon from "@iconify-icons/solar/chart-2-bold";
 import Link from "next/link";
 
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
-import { WebsiteSelector } from "@/components/dashboard/website-selector";
-import { DateRangeSelector } from "@/components/dashboard/date-range-selector";
 import { requireUser } from "@/lib/auth/require-user";
-import { db } from "@/lib/db/client";
 import { signOut } from "@/auth";
 
 export default async function DashboardLayout({ children }: LayoutProps<"/">) {
   const user = await requireUser();
-  const websites = await db.website.findMany({
-    where: { userId: user.id },
-    select: { id: true, name: true },
-    orderBy: { createdAt: "asc" },
-  });
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[15rem_1fr]">
-      <aside className="border-b border-slate-200 bg-white px-4 py-4 lg:sticky lg:top-0 lg:h-screen lg:border-r lg:border-b-0 lg:px-5 lg:py-6">
+      <aside className=" bg-white px-4 py-4 lg:sticky lg:top-0 lg:h-screen lg:px-5 lg:py-6">
         <Link
           className="inline-flex items-center gap-2 font-semibold tracking-tight text-slate-950"
           href="/overview"
         >
           <span
             aria-hidden="true"
-            className="grid size-8 place-items-center rounded-lg bg-emerald-700 text-sm font-bold text-white"
+            className="grid size-8 place-items-center rounded-lg bg-emerald-700 text-white"
           >
-            P
+            <Icon icon={chartIcon} className="size-5" />
           </span>
           Pulse Analytics
         </Link>
@@ -34,11 +28,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/">) {
         </div>
       </aside>
       <div className="min-w-0">
-        <header className="flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-5 py-3 sm:px-8">
-          <div className="flex flex-wrap items-center gap-2">
-            <WebsiteSelector websites={websites} defaultId={websites[0]?.id} />
-            <DateRangeSelector />
-          </div>
+        <header className="flex min-h-16 flex-wrap items-center justify-end gap-3 shadow-sm bg-white px-5 py-3 sm:px-8">
           <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-sm font-semibold text-slate-900">

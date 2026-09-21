@@ -1,5 +1,6 @@
 "use client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Select } from "@/components/ui/select";
 export function WebsiteSelector({
   websites,
   defaultId,
@@ -12,27 +13,25 @@ export function WebsiteSelector({
   const search = useSearchParams();
   const selected = search.get("website") ?? defaultId ?? "";
   return (
-    <label className="text-sm font-medium text-slate-700">
-      <span className="sr-only">Website</span>
-      <select
-        className="rounded-lg border border-slate-300 bg-white px-3 py-2"
-        value={selected}
-        onChange={(event) => {
-          const params = new URLSearchParams(search);
-          params.set("website", event.target.value);
-          router.push(`${pathname}?${params}`);
-        }}
-        disabled={!websites.length}
-      >
-        <option value="">
-          {websites.length ? "Select website" : "No websites"}
-        </option>
-        {websites.map((site) => (
-          <option key={site.id} value={site.id}>
-            {site.name}
-          </option>
-        ))}
-      </select>
-    </label>
+    <Select
+      className="w-48"
+      label="Website"
+      value={selected}
+      onValueChange={(value) => {
+        const params = new URLSearchParams(search);
+        params.set("website", value);
+        router.push(`${pathname}?${params}`);
+      }}
+      disabled={!websites.length}
+      options={
+        websites.length
+          ? websites.map((site) => ({
+              value: site.id,
+              label: site.name,
+              marker: site.name,
+            }))
+          : [{ value: "", label: "No websites" }]
+      }
+    />
   );
 }

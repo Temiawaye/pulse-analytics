@@ -1,5 +1,6 @@
 import { DistributionChart } from "@/components/charts/distribution-chart";
 import { EmptyState } from "@/components/dashboard/empty-state";
+import { AnalyticsFilters } from "@/components/dashboard/analytics-filters";
 import {
   resolveDashboardScope,
   type DashboardSearchParams,
@@ -32,11 +33,16 @@ export default async function SourcesPage({
   const total = sources.reduce((sum, item) => sum + item.visits, 0);
   return (
     <section>
-      <span className="eyebrow">Acquisition</span>
-      <h1 className="mt-3 text-3xl font-semibold">Sources</h1>
-      <p className="mt-2 text-slate-600">
-        Understand how visitors discover your website.
-      </p>
+      <header className="flex flex-wrap items-end justify-between gap-5">
+        <div>
+          <span className="eyebrow">Acquisition</span>
+          <h1 className="mt-3 text-3xl font-semibold">Sources</h1>
+          <p className="mt-2 text-slate-600">
+            Understand how visitors discover your website.
+          </p>
+        </div>
+        <AnalyticsFilters userId={user.id} />
+      </header>
       {total === 0 ? (
         <div className="mt-7">
           <EmptyState

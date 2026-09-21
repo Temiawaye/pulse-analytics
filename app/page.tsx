@@ -1,3 +1,5 @@
+import { Icon } from "@iconify/react";
+import arrowRightIcon from "@iconify-icons/solar/arrow-right-linear";
 import Link from "next/link";
 
 export default function Home() {
@@ -14,7 +16,7 @@ export default function Home() {
         </p>
         <Link className="button-primary mt-9 inline-flex" href="/overview">
           Open dashboard
-          <span aria-hidden="true">→</span>
+          <Icon aria-hidden="true" icon={arrowRightIcon} className="size-4" />
         </Link>
       </section>
     </main>

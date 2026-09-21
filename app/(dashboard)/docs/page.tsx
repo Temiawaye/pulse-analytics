@@ -1,3 +1,7 @@
+import { Icon } from "@iconify/react";
+import addCircleIcon from "@iconify-icons/solar/add-circle-linear";
+import arrowDownIcon from "@iconify-icons/solar/arrow-down-linear";
+import arrowRightIcon from "@iconify-icons/solar/arrow-right-linear";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -38,8 +42,10 @@ export default async function DocsPage({
   const trackerUrl = `${env.APP_URL}/tracker.js`;
   const endpoint = `${env.APP_URL}/api/track`;
   const snippet = `<script\n  defer\n  data-website-id="${trackingId}"\n  src="${trackerUrl}"\n></script>`;
-  const nextSnippet = `import Script from "next/script";\n\nexport default function RootLayout({ children }) {\n  return (\n    <html lang="en">\n      <body>{children}</body>\n      <Script\n        src="${trackerUrl}"\n        data-website-id="${trackingId}"\n        strategy="afterInteractive"\n      />\n    </html>\n  );\n}`;
-  const reactSnippet = `import { useEffect } from "react";\n\nexport function PulseAnalytics() {\n  useEffect(() => {\n    const script = document.createElement("script");\n    script.src = "${trackerUrl}";\n    script.dataset.websiteId = "${trackingId}";\n    script.defer = true;\n    document.head.appendChild(script);\n    return () => script.remove();\n  }, []);\n\n  return null;\n}`;
+  const nextJavascript = `import Script from "next/script";\n\nexport default function RootLayout({ children }) {\n  return (\n    <html lang="en">\n      <body>{children}</body>\n      <Script\n        src="${trackerUrl}"\n        data-website-id="${trackingId}"\n        strategy="afterInteractive"\n      />\n    </html>\n  );\n}`;
+  const nextTypescript = `import type { ReactNode } from "react";\nimport Script from "next/script";\n\nexport default function RootLayout({ children }: { children: ReactNode }) {\n  return (\n    <html lang="en">\n      <body>{children}</body>\n      <Script\n        src="${trackerUrl}"\n        data-website-id="${trackingId}"\n        strategy="afterInteractive"\n      />\n    </html>\n  );\n}`;
+  const reactJavascript = `import { useEffect } from "react";\n\nexport function PulseAnalytics() {\n  useEffect(() => {\n    const script = document.createElement("script");\n    script.src = "${trackerUrl}";\n    script.dataset.websiteId = "${trackingId}";\n    script.defer = true;\n    document.head.appendChild(script);\n    return () => script.remove();\n  }, []);\n\n  return null;\n}`;
+  const reactTypescript = `import { useEffect } from "react";\n\nexport function PulseAnalytics(): null {\n  useEffect(() => {\n    const script: HTMLScriptElement = document.createElement("script");\n    script.src = "${trackerUrl}";\n    script.dataset.websiteId = "${trackingId}";\n    script.defer = true;\n    document.head.appendChild(script);\n    return () => script.remove();\n  }, []);\n\n  return null;\n}`;
   const payload = JSON.stringify(
     {
       trackingId,
@@ -157,7 +163,7 @@ export default async function DocsPage({
             <code>&lt;head&gt;</code>. It loads with <code>defer</code>, so it
             does not block HTML parsing.
             <div className="mt-4">
-              <CodeBlock code={snippet} label="HTML" />
+              <CodeBlock code={snippet} label="index.html" language="markup" />
             </div>
           </Step>
           <Callout kind="tip" title="Single-page apps are covered">
@@ -181,14 +187,34 @@ export default async function DocsPage({
           <Example
             title="Next.js App Router"
             description="Add next/script to the root layout. afterInteractive runs the tracker in the browser after hydration."
-            code={nextSnippet}
-            label="app/layout.tsx"
+            variants={{
+              typescript: {
+                code: nextTypescript,
+                label: "app/layout.tsx",
+                language: "tsx",
+              },
+              javascript: {
+                code: nextJavascript,
+                label: "app/layout.jsx",
+                language: "jsx",
+              },
+            }}
           />
           <Example
             title="React"
             description="Mount this component once near the root of your app. The effect appends the same dependency-free tracker."
-            code={reactSnippet}
-            label="PulseAnalytics.jsx"
+            variants={{
+              typescript: {
+                code: reactTypescript,
+                label: "PulseAnalytics.tsx",
+                language: "tsx",
+              },
+              javascript: {
+                code: reactJavascript,
+                label: "PulseAnalytics.jsx",
+                language: "jsx",
+              },
+            }}
           />
         </Section>
 
@@ -236,7 +262,7 @@ export default async function DocsPage({
             <code>referrer</code>, and <code>timestamp</code> are optional. The
             tracker creates the anonymous ID automatically.
           </p>
-          <CodeBlock code={payload} label="JSON" />
+          <CodeBlock code={payload} label="page-view.json" language="json" />
           <Callout kind="note" title="Privacy and sanitization">
             Query strings and fragments are removed from paths and referrers.
             Device and browser are derived server-side; the event body cannot
@@ -429,17 +455,27 @@ function Example({
   description,
   code,
   label,
+  variants,
 }: {
   title: string;
   description: string;
-  code: string;
-  label: string;
+  code?: string;
+  label?: string;
+  variants?: {
+    typescript: { code: string; label: string; language: "tsx" };
+    javascript: { code: string; label: string; language: "jsx" };
+  };
 }) {
   return (
     <div className="mb-8 last:mb-0">
       <h3 className="text-lg font-semibold text-slate-950">{title}</h3>
       <p className="mb-4 mt-1">{description}</p>
-      <CodeBlock code={code} label={label} />
+      <CodeBlock
+        code={code}
+        label={label}
+        language="markup"
+        variants={variants}
+      />
     </div>
   );
 }
@@ -477,12 +513,11 @@ function Trouble({
       <summary className="cursor-pointer list-none font-semibold text-slate-950 marker:hidden">
         <span className="flex items-center justify-between gap-4">
           {title}
-          <span
+          <Icon
             aria-hidden="true"
-            className="text-xl text-slate-400 group-open:rotate-45"
-          >
-            +
-          </span>
+            className="size-5 text-slate-400 transition-transform group-open:rotate-45"
+            icon={addCircleIcon}
+          />
         </span>
       </summary>
       <div className="mt-3 pr-8 text-sm leading-6 text-slate-600">
@@ -519,14 +554,15 @@ function Flow({
               {item}
             </span>
             {index < items.length - 1 && (
-              <span
+              <Icon
                 aria-hidden="true"
                 className={
-                  vertical ? "py-1 text-emerald-700" : "px-2 text-emerald-700"
+                  vertical
+                    ? "my-1 size-4 text-emerald-700"
+                    : "mx-2 size-4 text-emerald-700"
                 }
-              >
-                {vertical ? "↓" : "→"}
-              </span>
+                icon={vertical ? arrowDownIcon : arrowRightIcon}
+              />
             )}
           </div>
         ))}

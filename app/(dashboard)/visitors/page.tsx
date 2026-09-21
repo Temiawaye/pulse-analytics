@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/dashboard/empty-state";
+import { AnalyticsFilters } from "@/components/dashboard/analytics-filters";
 import {
   resolveDashboardScope,
   type DashboardSearchParams,
@@ -24,11 +25,16 @@ export default async function VisitorsPage({
   const visitors = await getVisitors(context.scope);
   return (
     <section>
-      <span className="eyebrow">Audience</span>
-      <h1 className="mt-3 text-3xl font-semibold">Visitors</h1>
-      <p className="mt-2 text-slate-600">
-        Anonymous, website-scoped visitor activity.
-      </p>
+      <header className="flex flex-wrap items-end justify-between gap-5">
+        <div>
+          <span className="eyebrow">Audience</span>
+          <h1 className="mt-3 text-3xl font-semibold">Visitors</h1>
+          <p className="mt-2 text-slate-600">
+            Anonymous, website-scoped visitor activity.
+          </p>
+        </div>
+        <AnalyticsFilters userId={user.id} />
+      </header>
       <div className="mt-7">
         {visitors.length ? (
           <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">

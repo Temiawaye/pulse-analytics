@@ -6,7 +6,7 @@ const navigation = [
   { href: "/visitors", label: "Visitors" },
   { href: "/sources", label: "Sources" },
   { href: "/websites", label: "Websites" },
-  { href: "/docs", label: "Integration guide" },
+  { href: "/docs", label: "Docs" },
   { href: "/settings", label: "Settings" },
 ];
 

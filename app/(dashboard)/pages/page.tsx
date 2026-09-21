@@ -1,4 +1,6 @@
 import { EmptyState } from "@/components/dashboard/empty-state";
+import { AnalyticsFilters } from "@/components/dashboard/analytics-filters";
+import { Select } from "@/components/ui/select";
 import {
   resolveDashboardScope,
   type DashboardSearchParams,
@@ -39,11 +41,16 @@ export default async function PagesPage({
     );
   return (
     <section>
-      <span className="eyebrow">Content</span>
-      <h1 className="mt-3 text-3xl font-semibold">Pages</h1>
-      <p className="mt-2 text-slate-600">
-        See which paths attract and retain visitors.
-      </p>
+      <header className="flex flex-wrap items-end justify-between gap-5">
+        <div>
+          <span className="eyebrow">Content</span>
+          <h1 className="mt-3 text-3xl font-semibold">Pages</h1>
+          <p className="mt-2 text-slate-600">
+            See which paths attract and retain visitors.
+          </p>
+        </div>
+        <AnalyticsFilters userId={user.id} />
+      </header>
       <form className="mt-7 flex flex-wrap gap-3" method="get">
         {typeof params.website === "string" && (
           <input type="hidden" name="website" value={params.website} />
@@ -60,18 +67,17 @@ export default async function PagesPage({
             placeholder="Search paths"
           />
         </label>
-        <label>
-          <span className="sr-only">Sort pages</span>
-          <select
-            className="rounded-xl border border-slate-300 bg-white px-4 py-2.5"
-            name="sort"
-            defaultValue={sort}
-          >
-            <option value="views">Most views</option>
-            <option value="visitors">Most visitors</option>
-            <option value="path">Path A–Z</option>
-          </select>
-        </label>
+        <Select
+          className="w-48"
+          label="Sort pages"
+          name="sort"
+          defaultValue={sort}
+          options={[
+            { value: "views", label: "Most views", marker: "V" },
+            { value: "visitors", label: "Most visitors", marker: "U" },
+            { value: "path", label: "Path A–Z", marker: "AZ" },
+          ]}
+        />
         <button className="button-primary" type="submit">
           Apply
         </button>

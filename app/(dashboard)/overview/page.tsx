@@ -1,6 +1,7 @@
 import { DistributionChart } from "@/components/charts/distribution-chart";
 import { TrafficChart } from "@/components/charts/traffic-chart";
 import { EmptyState } from "@/components/dashboard/empty-state";
+import { AnalyticsFilters } from "@/components/dashboard/analytics-filters";
 import { LiveOverview } from "@/components/dashboard/live-overview";
 import {
   resolveDashboardScope,
@@ -50,12 +51,17 @@ export default async function OverviewPage({
   );
   return (
     <section>
-      <header>
-        <span className="eyebrow">{context.website.name}</span>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight">Overview</h1>
-        <p className="mt-2 text-sm text-slate-600">
-          Traffic for {context.website.domain} over the selected period.
-        </p>
+      <header className="flex flex-wrap items-end justify-between gap-5">
+        <div>
+          <span className="eyebrow">{context.website.name}</span>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight">
+            Overview
+          </h1>
+          <p className="mt-2 text-sm text-slate-600">
+            Traffic for {context.website.domain} over the selected period.
+          </p>
+        </div>
+        <AnalyticsFilters userId={user.id} />
       </header>
       <LiveOverview
         key={`${context.website.id}-${context.range.key}`}
