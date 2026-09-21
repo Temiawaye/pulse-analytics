@@ -4,7 +4,6 @@ import Link from "next/link";
 import { CodeBlock } from "@/components/docs/code-block";
 import { DocsNav } from "@/components/docs/docs-nav";
 import { VerifyConnection } from "@/components/docs/verify-connection";
-import { EmptyState } from "@/components/dashboard/empty-state";
 import {
   resolveDashboardScope,
   type DashboardSearchParams,
@@ -25,30 +24,25 @@ export default async function DocsPage({
 }) {
   const user = await requireUser();
   const context = await resolveDashboardScope(user.id, await searchParams);
-  if (!context) {
-    return (
-      <EmptyState
-        title="Add your first website"
-        message="Create a website to generate its public tracking ID and personalized integration guide."
-        setup
-      />
-    );
-  }
-
-  const { website } = context;
-  const lastEvent = await db.pageView.findFirst({
-    where: { websiteId: website.id },
-    orderBy: { createdAt: "desc" },
-    select: { createdAt: true },
-  });
+  const website = context?.website;
+  const websiteName = website?.name ?? "your website";
+  const websiteDomain = website?.domain ?? "example.com";
+  const trackingId = website?.trackingId ?? "site_your_tracking_id";
+  const lastEvent = website
+    ? await db.pageView.findFirst({
+        where: { websiteId: website.id },
+        orderBy: { createdAt: "desc" },
+        select: { createdAt: true },
+      })
+    : null;
   const trackerUrl = `${env.APP_URL}/tracker.js`;
   const endpoint = `${env.APP_URL}/api/track`;
-  const snippet = `<script\n  defer\n  data-website-id="${website.trackingId}"\n  src="${trackerUrl}"\n></script>`;
-  const nextSnippet = `import Script from "next/script";\n\nexport default function RootLayout({ children }) {\n  return (\n    <html lang="en">\n      <body>{children}</body>\n      <Script\n        src="${trackerUrl}"\n        data-website-id="${website.trackingId}"\n        strategy="afterInteractive"\n      />\n    </html>\n  );\n}`;
-  const reactSnippet = `import { useEffect } from "react";\n\nexport function PulseAnalytics() {\n  useEffect(() => {\n    const script = document.createElement("script");\n    script.src = "${trackerUrl}";\n    script.dataset.websiteId = "${website.trackingId}";\n    script.defer = true;\n    document.head.appendChild(script);\n    return () => script.remove();\n  }, []);\n\n  return null;\n}`;
+  const snippet = `<script\n  defer\n  data-website-id="${trackingId}"\n  src="${trackerUrl}"\n></script>`;
+  const nextSnippet = `import Script from "next/script";\n\nexport default function RootLayout({ children }) {\n  return (\n    <html lang="en">\n      <body>{children}</body>\n      <Script\n        src="${trackerUrl}"\n        data-website-id="${trackingId}"\n        strategy="afterInteractive"\n      />\n    </html>\n  );\n}`;
+  const reactSnippet = `import { useEffect } from "react";\n\nexport function PulseAnalytics() {\n  useEffect(() => {\n    const script = document.createElement("script");\n    script.src = "${trackerUrl}";\n    script.dataset.websiteId = "${trackingId}";\n    script.defer = true;\n    document.head.appendChild(script);\n    return () => script.remove();\n  }, []);\n\n  return null;\n}`;
   const payload = JSON.stringify(
     {
-      trackingId: website.trackingId,
+      trackingId,
       event: "page_view",
       path: "/pricing",
       title: "Pricing",
@@ -75,7 +69,7 @@ export default async function DocsPage({
             Connect Your Website
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-            Add one lightweight script to {website.name}. It records page views
+            Add one lightweight script to {websiteName}. It records page views
             and sends them to Pulse Analytics so you can see traffic in your
             dashboard.
           </p>
@@ -87,6 +81,19 @@ export default async function DocsPage({
               "Dashboard",
             ]}
           />
+          {!website && (
+            <Callout kind="tip" title="Explore first, personalize when ready">
+              This guide uses labeled example values until you create a website.
+              Then Pulse will show a real tracking ID, a ready-to-paste snippet,
+              and live connection verification.{" "}
+              <Link
+                className="font-semibold underline underline-offset-4"
+                href="/settings"
+              >
+                Create a website
+              </Link>
+            </Callout>
+          )}
         </header>
 
         <Section
@@ -95,23 +102,26 @@ export default async function DocsPage({
           title="Everything you need"
         >
           <p>
-            You already have a website selected, so the safe public values below
-            are ready to copy.
+            {website
+              ? "You already have a website selected, so the safe public values below are ready to copy."
+              : "These are clearly labeled examples. Pulse replaces them with your safe public values after you create a website."}
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <Detail label="Website" value={website.name} />
-            <Detail label="Registered domain" value={website.domain} />
             <Detail
-              label="Public tracking ID"
-              value={website.trackingId}
-              mono
+              label={website ? "Website" : "Website example"}
+              value={websiteName}
             />
+            <Detail
+              label={website ? "Registered domain" : "Domain placeholder"}
+              value={websiteDomain}
+            />
+            <Detail label="Public tracking ID" value={trackingId} mono />
             <Detail label="Event endpoint" value={endpoint} mono />
           </div>
           <Callout kind="note" title="You also need source-code access">
             You must be able to edit the HTML or application layout of{" "}
-            {website.domain}. The public tracking ID is designed for browser
-            use; no API key or dashboard session is added to the tracked site.
+            {websiteDomain}. The public tracking ID is designed for browser use;
+            no API key or dashboard session is added to the tracked site.
           </Callout>
         </Section>
 
@@ -121,17 +131,26 @@ export default async function DocsPage({
           title="Install in two steps"
         >
           <Step number="1" title="Add or select your website">
-            {website.name} is registered with the exact host{" "}
-            <code>{website.domain}</code>. To use another host, select it above
-            or{" "}
+            {website ? (
+              <>
+                {websiteName} is registered with the exact host{" "}
+                <code>{websiteDomain}</code>. To use another host, select it
+                above or{" "}
+              </>
+            ) : (
+              <>
+                Register the exact hostname that will send events, such as{" "}
+                <code>{websiteDomain}</code>.{" "}
+              </>
+            )}
             <Link
               href="/settings"
               className="font-medium text-emerald-700 underline underline-offset-4"
             >
               add it in Settings
             </Link>
-            . Pulse uses the public ID <code>{website.trackingId}</code>, not
-            the internal database ID.
+            . Pulse uses the public ID <code>{trackingId}</code>, not the
+            internal database ID.
           </Step>
           <Step number="2" title="Copy the tracking code">
             Paste this tag into every page, preferably near the end of{" "}
@@ -183,7 +202,7 @@ export default async function DocsPage({
               "A visitor opens a page on your external website.",
               "tracker.js loads and creates a website-scoped anonymous ID in first-party local storage.",
               "It creates a page_view event and sends it to POST /api/track.",
-              `Pulse checks the payload, rate limit, tracking ID, and exact Origin against ${website.domain}.`,
+              `Pulse checks the payload, rate limit, tracking ID, and exact Origin against ${websiteDomain}.`,
               "The server sanitizes the path, title, and referrer, derives browser and device from the request, then stores the visitor, session, and page view.",
               "The dashboard reads those records and refreshes its metrics and recent activity.",
             ].map((item, index) => (
@@ -244,16 +263,32 @@ export default async function DocsPage({
           title="Confirm the first event"
         >
           <p>
-            Open <strong>{website.domain}</strong> in another tab, visit one or
-            two pages, then run this check. It queries stored page views for
-            this selected website; it does not simulate a success response.
+            {website ? (
+              <>
+                Open <strong>{websiteDomain}</strong> in another tab, visit one
+                or two pages, then run this check. It queries stored page views
+                for this selected website; it does not simulate a success
+                response.
+              </>
+            ) : (
+              "Live verification becomes available after you create a website and install its personalized tracking snippet."
+            )}
           </p>
           {lastEvent && (
             <p className="mt-3 text-sm text-slate-600">
               Latest stored page view: {lastEvent.createdAt.toLocaleString()}
             </p>
           )}
-          <VerifyConnection websiteId={website.id} />
+          {website ? (
+            <VerifyConnection websiteId={website.id} />
+          ) : (
+            <Link
+              className="button-primary mt-5 inline-flex text-sm"
+              href="/settings"
+            >
+              Create a website to verify
+            </Link>
+          )}
           <h3 className="mt-8 text-lg font-semibold">Real-time verification</h3>
           <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-6 text-slate-700">
             <li>Open the connected website in another browser tab.</li>
@@ -262,7 +297,7 @@ export default async function DocsPage({
               Return to{" "}
               <Link
                 className="font-medium text-emerald-700 underline underline-offset-4"
-                href={`/overview?website=${website.id}`}
+                href={website ? `/overview?website=${website.id}` : "/overview"}
               >
                 Overview
               </Link>
@@ -281,17 +316,17 @@ export default async function DocsPage({
           title="Common integration problems"
         >
           <Trouble title="No events are appearing">
-            Confirm the copied ID is <code>{website.trackingId}</code>. In
-            browser DevTools, check that <code>{trackerUrl}</code> loads and
-            that the Network request to <code>/api/track</code> returns{" "}
-            <code>202</code>. Also confirm the tag is not marked{" "}
+            Confirm the copied ID is <code>{trackingId}</code>. In browser
+            DevTools, check that <code>{trackerUrl}</code> loads and that the
+            Network request to <code>/api/track</code> returns <code>202</code>.
+            Also confirm the tag is not marked{" "}
             <code>data-disabled=&quot;true&quot;</code>.
           </Trouble>
           <Trouble title="401 / 403 errors">
             The ingestion endpoint does not use login authentication and does
             not normally return 401. A 403 means the browser sent no Origin
             header or its exact host, including a non-default port, does not
-            match <code>{website.domain}</code>. Update the domain in Settings
+            match <code>{websiteDomain}</code>. Update the domain in Settings
             when the site moves.
           </Trouble>
           <Trouble title="CORS errors">
