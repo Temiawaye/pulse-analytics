@@ -30,3 +30,19 @@ export async function saveWebsite(formData: FormData) {
   revalidatePath("/settings");
   redirect(`/settings?website=${website.id}&created=1`);
 }
+
+export async function deleteWebsite(formData: FormData) {
+  const user = await requireUser();
+  const websiteId = formData.get("websiteId");
+  if (typeof websiteId !== "string" || !websiteId) {
+    redirect("/settings?error=invalid");
+  }
+
+  const result = await db.website.deleteMany({
+    where: { id: websiteId, userId: user.id },
+  });
+  if (!result.count) redirect("/settings?error=not-found");
+
+  revalidatePath("/", "layout");
+  redirect("/settings?deleted=1");
+}

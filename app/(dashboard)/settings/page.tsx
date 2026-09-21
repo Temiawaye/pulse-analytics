@@ -1,3 +1,6 @@
+import Link from "next/link";
+
+import { DeleteWebsiteButton } from "@/components/dashboard/delete-website-button";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { TrackingSnippet } from "@/components/dashboard/tracking-snippet";
 import {
@@ -17,7 +20,8 @@ export default async function SettingsPage({
   const user = await requireUser();
   const params = await searchParams;
   const context = await resolveDashboardScope(user.id, params);
-  const website = context?.website;
+  const isCreating = params.new === "1";
+  const website = isCreating ? undefined : context?.website;
   const lastEvent = website
     ? await db.pageView.findFirst({
         where: { websiteId: website.id },
@@ -31,16 +35,39 @@ export default async function SettingsPage({
   return (
     <section className="max-w-3xl">
       <span className="eyebrow">Configuration</span>
-      <h1 className="mt-3 text-3xl font-semibold">
-        {website ? "Website settings" : "Add a website"}
-      </h1>
-      <p className="mt-3 text-slate-600">
-        Register the exact hostname that will send analytics events.
-      </p>
+      <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-semibold">
+            {website ? "Website settings" : "Add a website"}
+          </h1>
+          <p className="mt-3 text-slate-600">
+            Register the exact hostname that will send analytics events.
+          </p>
+        </div>
+        {website && (
+          <Link
+            className="button-primary inline-flex text-sm"
+            href="/settings?new=1"
+          >
+            Add another website
+          </Link>
+        )}
+        {isCreating && context?.website && (
+          <Link
+            className="rounded-full border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            href={`/settings?website=${context.website.id}`}
+          >
+            Cancel
+          </Link>
+        )}
+      </div>
       {params.created === "1" && (
         <Notice>Website created. Install the tracker below.</Notice>
       )}
       {params.saved === "1" && <Notice>Website settings saved.</Notice>}
+      {params.deleted === "1" && (
+        <Notice>Website and its analytics data deleted.</Notice>
+      )}
       <form
         action={saveWebsite}
         className="mt-8 space-y-5 rounded-2xl border border-slate-200 bg-white p-6"
@@ -82,6 +109,17 @@ export default async function SettingsPage({
               rendering.
             </p>
             <TrackingSnippet code={snippet} />
+          </section>
+          <section className="mt-6 rounded-2xl border border-red-200 bg-white p-6">
+            <h2 className="font-semibold text-red-900">Danger zone</h2>
+            <p className="mb-4 mt-2 text-sm leading-6 text-slate-600">
+              Deleting this website also deletes all of its visitors, sessions,
+              page views, and rate-limit records. This cannot be undone.
+            </p>
+            <DeleteWebsiteButton
+              websiteId={website.id}
+              websiteName={website.name}
+            />
           </section>
         </>
       ) : (
