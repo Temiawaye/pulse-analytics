@@ -2,10 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import {
-  AnalyticsActivity,
-  type AnalyticsActivityItem,
-} from "@/components/dashboard/analytics-activity";
 import { MetricCard } from "@/components/dashboard/metric-card";
 
 interface Summary {
@@ -19,7 +15,6 @@ interface LiveOverviewProps {
   websiteId: string;
   range: string;
   initialSummary: Summary;
-  initialRecent: AnalyticsActivityItem[];
   initialRefreshedAt: string;
 }
 
@@ -27,11 +22,9 @@ export function LiveOverview({
   websiteId,
   range,
   initialSummary,
-  initialRecent,
   initialRefreshedAt,
 }: LiveOverviewProps) {
   const [summary, setSummary] = useState(initialSummary);
-  const [recent, setRecent] = useState(initialRecent);
   const [refreshedAt, setRefreshedAt] = useState(initialRefreshedAt);
   const [status, setStatus] = useState<"idle" | "refreshing" | "error">("idle");
   const requestRef = useRef<AbortController | null>(null);
@@ -53,11 +46,9 @@ export function LiveOverview({
 
       const data = (await response.json()) as {
         summary: Summary;
-        recent: AnalyticsActivityItem[];
         refreshedAt: string;
       };
       setSummary(data.summary);
-      setRecent(data.recent);
       setRefreshedAt(data.refreshedAt);
       setStatus("idle");
     } catch (error) {
@@ -130,7 +121,6 @@ export function LiveOverview({
           hint="Completed sessions"
         />
       </div>
-      <AnalyticsActivity pageViews={summary.pageViews} recent={recent} />
     </>
   );
 }

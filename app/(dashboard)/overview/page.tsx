@@ -1,7 +1,8 @@
 import { DistributionChart } from "@/components/charts/distribution-chart";
 import { TrafficChart } from "@/components/charts/traffic-chart";
-import { EmptyState } from "@/components/dashboard/empty-state";
+import { AnalyticsActivity } from "@/components/dashboard/analytics-activity";
 import { AnalyticsFilters } from "@/components/dashboard/analytics-filters";
+import { EmptyState } from "@/components/dashboard/empty-state";
 import { LiveOverview } from "@/components/dashboard/live-overview";
 import {
   resolveDashboardScope,
@@ -68,11 +69,14 @@ export default async function OverviewPage({
         websiteId={context.website.id}
         range={context.range.key}
         initialSummary={summary}
-        initialRecent={recent.map((item) => ({
+        initialRefreshedAt={new Date().toISOString()}
+      />
+      <AnalyticsActivity
+        pageViews={summary.pageViews}
+        recent={recent.map((item) => ({
           ...item,
           createdAt: item.createdAt.toISOString(),
         }))}
-        initialRefreshedAt={new Date().toISOString()}
       />
       {summary.pageViews > 0 && (
         <>
