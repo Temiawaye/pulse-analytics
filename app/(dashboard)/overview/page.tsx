@@ -71,13 +71,7 @@ export default async function OverviewPage({
         initialSummary={summary}
         initialRefreshedAt={new Date().toISOString()}
       />
-      <AnalyticsActivity
-        pageViews={summary.pageViews}
-        recent={recent.map((item) => ({
-          ...item,
-          createdAt: item.createdAt.toISOString(),
-        }))}
-      />
+
       {summary.pageViews > 0 && (
         <>
           <Panel title="Traffic over time" className="mt-6">
@@ -130,6 +124,14 @@ export default async function OverviewPage({
           </div>
         </>
       )}
+
+      <AnalyticsActivity
+        pageViews={summary.pageViews}
+        recent={recent.map((item) => ({
+          ...item,
+          createdAt: item.createdAt.toISOString(),
+        }))}
+      />
     </section>
   );
 }
