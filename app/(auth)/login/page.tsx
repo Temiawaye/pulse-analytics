@@ -7,7 +7,7 @@ export default async function LoginPage() {
   return (
     <>
       <span className="eyebrow">Welcome back</span>
-      <h1 className="mt-3 text-3xl font-semibold">Sign in</h1>
+      <h1 className="mt-3 text-[2rem] font-semibold tracking-tight">Sign in</h1>
       <AuthForm action={login} mode="login" />
     </>
   );

@@ -7,7 +7,9 @@ export default async function RegisterPage() {
   return (
     <>
       <span className="eyebrow">Get started</span>
-      <h1 className="mt-3 text-3xl font-semibold">Create account</h1>
+      <h1 className="mt-3 text-[2rem] font-semibold tracking-tight">
+        Create account
+      </h1>
       <p className="mt-2 text-sm text-slate-600">
         Use at least eight characters for your password.
       </p>

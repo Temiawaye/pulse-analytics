@@ -37,7 +37,9 @@ export default async function WebsitesPage({
       <span className="eyebrow">Workspace</span>
       <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Websites</h1>
+          <h1 className="text-[2rem] font-semibold tracking-tight sm:text-4xl">
+            Websites
+          </h1>
           <p className="mt-2 text-slate-600">
             Add websites and monitor each project independently.
           </p>

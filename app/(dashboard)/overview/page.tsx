@@ -54,7 +54,7 @@ export default async function OverviewPage({
       <header className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <span className="eyebrow">{context.website.name}</span>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight">
+          <h1 className="mt-3 text-[2rem] font-semibold tracking-tight sm:text-4xl">
             Overview
           </h1>
           <p className="mt-2 text-sm text-slate-600">

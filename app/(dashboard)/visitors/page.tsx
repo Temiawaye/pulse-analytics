@@ -28,7 +28,9 @@ export default async function VisitorsPage({
       <header className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <span className="eyebrow">Audience</span>
-          <h1 className="mt-3 text-3xl font-semibold">Visitors</h1>
+          <h1 className="mt-3 text-[2rem] font-semibold tracking-tight sm:text-4xl">
+            Visitors
+          </h1>
           <p className="mt-2 text-slate-600">
             Anonymous, website-scoped visitor activity.
           </p>
@@ -60,10 +62,10 @@ export default async function VisitorsPage({
                     <td className="px-5 py-4 font-mono text-xs text-slate-700">
                       {maskId(visitor.anonymousId)}
                     </td>
-                    <td className="px-5 py-4 text-slate-600">
+                    <td className="px-5 py-4 font-mono text-xs text-slate-600">
                       {visitor.firstSeenAt.toLocaleString()}
                     </td>
-                    <td className="px-5 py-4 text-slate-600">
+                    <td className="px-5 py-4 font-mono text-xs text-slate-600">
                       {visitor.lastSeenAt.toLocaleString()}
                     </td>
                     <td className="px-5 py-4">{visitor.sessions}</td>

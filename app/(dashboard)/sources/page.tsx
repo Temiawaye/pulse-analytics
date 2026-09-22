@@ -36,7 +36,9 @@ export default async function SourcesPage({
       <header className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <span className="eyebrow">Acquisition</span>
-          <h1 className="mt-3 text-3xl font-semibold">Sources</h1>
+          <h1 className="mt-3 text-[2rem] font-semibold tracking-tight sm:text-4xl">
+            Sources
+          </h1>
           <p className="mt-2 text-slate-600">
             Understand how visitors discover your website.
           </p>

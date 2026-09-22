@@ -158,11 +158,14 @@ export function LiveOverview({
                   <p className="font-medium text-slate-900">
                     {item.title || item.path}
                   </p>
-                  <p className="text-slate-500">
+                  <p className="font-mono text-xs text-slate-500">
                     {item.path} / {item.session.device} / {item.session.browser}
                   </p>
                 </div>
-                <time className="text-slate-500" dateTime={item.createdAt}>
+                <time
+                  className="font-mono text-xs text-slate-500"
+                  dateTime={item.createdAt}
+                >
                   {new Date(item.createdAt).toLocaleString()}
                 </time>
               </article>

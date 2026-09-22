@@ -8,13 +8,15 @@ export default async function SettingsPage() {
   return (
     <section className="max-w-3xl">
       <span className="eyebrow">Configuration</span>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight">Settings</h1>
+      <h1 className="mt-3 text-[2rem] font-semibold tracking-tight sm:text-4xl">
+        Settings
+      </h1>
       <p className="mt-2 text-slate-600">
         Manage your Pulse Analytics account and workspace.
       </p>
 
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-950">Account</h2>
+        <h2 className="text-xl font-semibold text-slate-950">Account</h2>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <Info label="Name" value={user.name ?? "Not provided"} />
           <Info label="Email" value={user.email ?? "Not provided"} />
@@ -22,7 +24,7 @@ export default async function SettingsPage() {
       </section>
 
       <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-950">
+        <h2 className="text-xl font-semibold text-slate-950">
           Website management
         </h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -38,7 +40,7 @@ export default async function SettingsPage() {
       </section>
 
       <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-950">
+        <h2 className="text-xl font-semibold text-slate-950">
           Data and privacy
         </h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">
