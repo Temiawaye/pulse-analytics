@@ -7,7 +7,7 @@ and present useful traffic insights in an authenticated dashboard.
 ## Current status
 
 The product rules, application foundation, PostgreSQL data model,
-authentication, website management, event ingestion, tracker, and analytics
+authentication, website management, direct event ingestion, and analytics
 query layer are complete. The responsive dashboard renders real database
 results across Overview, Pages, Visitors, Sources, and Settings. Overview
 metrics and recent activity refresh every 30 seconds while the page is visible.
@@ -25,21 +25,27 @@ The complete visitor-data inventory, retention windows, deletion behavior,
 and operator responsibilities are documented in
 [`docs/privacy-and-retention.md`](docs/privacy-and-retention.md).
 
-## Tracker installation
+## Direct API integration
 
-Add the script before the closing `</body>` tag or anywhere with `defer`:
+Send page views from browser code to the public ingestion endpoint:
 
-```html
-<script
-  defer
-  data-website-id="site_your_tracking_id"
-  src="https://your-analytics-domain.example/tracker.js"
-></script>
+```js
+await fetch("https://your-analytics-domain.example/api/track", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    trackingId: "site_your_tracking_id",
+    event: "page_view",
+    path: window.location.pathname,
+    anonymousId: "a-persisted-random-browser-id",
+  }),
+});
 ```
 
-The tracker ignores localhost by default. To intentionally collect local
-traffic, add `data-track-localhost="true"`. It stores a random, website-scoped
-anonymous ID in first-party local storage and never sends URL query strings.
+The dashboard integration guide provides complete TypeScript and JavaScript
+clients that create and persist the anonymous ID. Localhost requests are
+accepted; register the exact local hostname and port, such as
+`localhost:3001`, as its own website before testing.
 
 ## Local setup
 

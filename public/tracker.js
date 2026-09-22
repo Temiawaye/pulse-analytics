@@ -7,14 +7,6 @@
   const trackingId = script.dataset.websiteId;
   if (!trackingId || script.dataset.disabled === "true") return;
 
-  const hostname = window.location.hostname;
-  const isDevelopment =
-    hostname === "localhost" ||
-    hostname === "127.0.0.1" ||
-    hostname === "::1" ||
-    hostname.endsWith(".localhost");
-  if (isDevelopment && script.dataset.trackLocalhost !== "true") return;
-
   const endpoint =
     script.dataset.endpoint || new URL("/api/track", script.src).toString();
   const storageKey = `pulse_visitor_${trackingId}`;

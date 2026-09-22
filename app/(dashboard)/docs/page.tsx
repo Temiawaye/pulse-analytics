@@ -18,7 +18,8 @@ import { env } from "@/lib/env";
 
 export const metadata: Metadata = {
   title: "Connect Your Website",
-  description: "Install Pulse Analytics and verify your first page view.",
+  description:
+    "Send events to Pulse Analytics and verify your first page view.",
 };
 
 export default async function DocsPage({
@@ -39,13 +40,24 @@ export default async function DocsPage({
         select: { createdAt: true },
       })
     : null;
-  const trackerUrl = `${env.APP_URL}/tracker.js`;
   const endpoint = `${env.APP_URL}/api/track`;
-  const snippet = `<script\n  defer\n  data-website-id="${trackingId}"\n  src="${trackerUrl}"\n></script>`;
-  const nextJavascript = `import Script from "next/script";\n\nexport default function RootLayout({ children }) {\n  return (\n    <html lang="en">\n      <body>{children}</body>\n      <Script\n        src="${trackerUrl}"\n        data-website-id="${trackingId}"\n        strategy="afterInteractive"\n      />\n    </html>\n  );\n}`;
-  const nextTypescript = `import type { ReactNode } from "react";\nimport Script from "next/script";\n\nexport default function RootLayout({ children }: { children: ReactNode }) {\n  return (\n    <html lang="en">\n      <body>{children}</body>\n      <Script\n        src="${trackerUrl}"\n        data-website-id="${trackingId}"\n        strategy="afterInteractive"\n      />\n    </html>\n  );\n}`;
-  const reactJavascript = `import { useEffect } from "react";\n\nexport function PulseAnalytics() {\n  useEffect(() => {\n    const script = document.createElement("script");\n    script.src = "${trackerUrl}";\n    script.dataset.websiteId = "${trackingId}";\n    script.defer = true;\n    document.head.appendChild(script);\n    return () => script.remove();\n  }, []);\n\n  return null;\n}`;
-  const reactTypescript = `import { useEffect } from "react";\n\nexport function PulseAnalytics(): null {\n  useEffect(() => {\n    const script: HTMLScriptElement = document.createElement("script");\n    script.src = "${trackerUrl}";\n    script.dataset.websiteId = "${trackingId}";\n    script.defer = true;\n    document.head.appendChild(script);\n    return () => script.remove();\n  }, []);\n\n  return null;\n}`;
+  const environmentSnippet = `NEXT_PUBLIC_PULSE_ENDPOINT=${endpoint}\nNEXT_PUBLIC_PULSE_TRACKING_ID=${trackingId}`;
+  const typescriptEnvironment = `function requireEnvironmentValue(\n  name: string,\n  value: string | undefined,\n): string {\n  if (!value) throw new Error(\`\${name} is required\`);\n  return value;\n}\n\nconst endpoint = requireEnvironmentValue(\n  "NEXT_PUBLIC_PULSE_ENDPOINT",\n  process.env.NEXT_PUBLIC_PULSE_ENDPOINT,\n);\nconst trackingId = requireEnvironmentValue(\n  "NEXT_PUBLIC_PULSE_TRACKING_ID",\n  process.env.NEXT_PUBLIC_PULSE_TRACKING_ID,\n);`;
+  const javascriptEnvironment = `function requireEnvironmentValue(name, value) {\n  if (!value) throw new Error(\`\${name} is required\`);\n  return value;\n}\n\nconst endpoint = requireEnvironmentValue(\n  "NEXT_PUBLIC_PULSE_ENDPOINT",\n  process.env.NEXT_PUBLIC_PULSE_ENDPOINT,\n);\nconst trackingId = requireEnvironmentValue(\n  "NEXT_PUBLIC_PULSE_TRACKING_ID",\n  process.env.NEXT_PUBLIC_PULSE_TRACKING_ID,\n);`;
+  const withPublicEnvironment = (code: string, environmentCode: string) =>
+    code.replace(
+      `const endpoint = "${endpoint}";\nconst trackingId = "${trackingId}";`,
+      environmentCode,
+    );
+  const apiJavascript = `const endpoint = "${endpoint}";\nconst trackingId = "${trackingId}";\n\nfunction getAnonymousId() {\n  const key = \`pulse_visitor_\${trackingId}\`;\n  let id = localStorage.getItem(key);\n  if (!id) {\n    id = crypto.randomUUID().replaceAll("-", "");\n    localStorage.setItem(key, id);\n  }\n  return id;\n}\n\nexport async function trackPageView(referrer = document.referrer) {\n  await fetch(endpoint, {\n    method: "POST",\n    headers: { "Content-Type": "application/json" },\n    body: JSON.stringify({\n      trackingId,\n      event: "page_view",\n      path: window.location.pathname || "/",\n      title: document.title,\n      referrer: referrer || undefined,\n      anonymousId: getAnonymousId(),\n      timestamp: new Date().toISOString(),\n    }),\n  });\n}`;
+  const apiTypescript = `const endpoint = "${endpoint}";\nconst trackingId = "${trackingId}";\n\nfunction getAnonymousId(): string {\n  const key = \`pulse_visitor_\${trackingId}\`;\n  let id = localStorage.getItem(key);\n  if (!id) {\n    id = crypto.randomUUID().replaceAll("-", "");\n    localStorage.setItem(key, id);\n  }\n  return id;\n}\n\nexport async function trackPageView(referrer = document.referrer): Promise<void> {\n  const response = await fetch(endpoint, {\n    method: "POST",\n    headers: { "Content-Type": "application/json" },\n    body: JSON.stringify({\n      trackingId,\n      event: "page_view",\n      path: window.location.pathname || "/",\n      title: document.title,\n      referrer: referrer || undefined,\n      anonymousId: getAnonymousId(),\n      timestamp: new Date().toISOString(),\n    }),\n  });\n  if (!response.ok) throw new Error(\`Pulse returned \${response.status}\`);\n}`;
+  const nextJavascript = `"use client";\n\nimport { usePathname } from "next/navigation";\nimport { useEffect, useRef } from "react";\nimport { trackPageView } from "@/lib/pulse";\n\nexport function PulseAnalytics() {\n  const pathname = usePathname();\n  const previousUrl = useRef();\n\n  useEffect(() => {\n    trackPageView(previousUrl.current).catch(console.error);\n    previousUrl.current = window.location.href;\n  }, [pathname]);\n\n  return null;\n}`;
+  const nextTypescript = `"use client";\n\nimport { usePathname } from "next/navigation";\nimport { useEffect, useRef } from "react";\nimport { trackPageView } from "@/lib/pulse";\n\nexport function PulseAnalytics(): null {\n  const pathname = usePathname();\n  const previousUrl = useRef<string | undefined>(undefined);\n\n  useEffect(() => {\n    trackPageView(previousUrl.current).catch(console.error);\n    previousUrl.current = window.location.href;\n  }, [pathname]);\n\n  return null;\n}`;
+  const nextLayoutJavascript = `import { PulseAnalytics } from "@/components/pulse-analytics";\n\nexport default function RootLayout({ children }) {\n  return (\n    <html lang="en">\n      <body>\n        {children}\n        <PulseAnalytics />\n      </body>\n    </html>\n  );\n}`;
+  const nextLayoutTypescript = `import type { ReactNode } from "react";\nimport { PulseAnalytics } from "@/components/pulse-analytics";\n\nexport default function RootLayout({ children }: { children: ReactNode }) {\n  return (\n    <html lang="en">\n      <body>\n        {children}\n        <PulseAnalytics />\n      </body>\n    </html>\n  );\n}`;
+  const reactJavascript = `import { useEffect } from "react";\nimport { trackPageView } from "./pulse";\n\nexport function PulseAnalytics() {\n  useEffect(() => {\n    trackPageView().catch(console.error);\n  }, []);\n\n  return null;\n}`;
+  const reactTypescript = `import { useEffect } from "react";\nimport { trackPageView } from "./pulse";\n\nexport function PulseAnalytics(): null {\n  useEffect(() => {\n    trackPageView().catch(console.error);\n  }, []);\n\n  return null;\n}`;
+  const htmlSnippet = `<script type="module">\n  const endpoint = "${endpoint}";\n  const trackingId = "${trackingId}";\n  const key = \`pulse_visitor_\${trackingId}\`;\n  let anonymousId = localStorage.getItem(key);\n  if (!anonymousId) {\n    anonymousId = crypto.randomUUID().replaceAll("-", "");\n    localStorage.setItem(key, anonymousId);\n  }\n\n  fetch(endpoint, {\n    method: "POST",\n    headers: { "Content-Type": "application/json" },\n    body: JSON.stringify({\n      trackingId, event: "page_view",\n      path: location.pathname, title: document.title,\n      referrer: document.referrer || undefined, anonymousId,\n      timestamp: new Date().toISOString(),\n    }),\n  });\n</script>`;
   const payload = JSON.stringify(
     {
       trackingId,
@@ -75,14 +87,13 @@ export default async function DocsPage({
             Connect Your Website
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-            Add one lightweight script to {websiteName}. It records page views
-            and sends them to Pulse Analytics so you can see traffic in your
-            dashboard.
+            Send page-view events directly from {websiteName} to the Pulse
+            Analytics API with a small browser-side client you control.
           </p>
           <Flow
             items={[
               "Your website",
-              "Tracking script",
+              "Event client",
               "Analytics API",
               "Dashboard",
             ]}
@@ -134,7 +145,7 @@ export default async function DocsPage({
         <Section
           id="install"
           eyebrow="Quick start"
-          title="Install in two steps"
+          title="Install in three steps"
         >
           <Step number="1" title="Add or select your website">
             {website ? (
@@ -158,18 +169,53 @@ export default async function DocsPage({
             . Pulse uses the public ID <code>{trackingId}</code>, not the
             internal database ID.
           </Step>
-          <Step number="2" title="Copy the tracking code">
-            Paste this tag into every page, preferably near the end of{" "}
-            <code>&lt;head&gt;</code>. It loads with <code>defer</code>, so it
-            does not block HTML parsing.
+          <Step number="2" title="Add public environment variables">
+            Create or update <code>.env.local</code> in the external Next.js
+            project, then restart its development server.
             <div className="mt-4">
-              <CodeBlock code={snippet} label="index.html" language="markup" />
+              <CodeBlock
+                code={environmentSnippet}
+                label=".env.local"
+                language="bash"
+              />
             </div>
           </Step>
-          <Callout kind="tip" title="Single-page apps are covered">
-            The tracker records the initial view and detects History API
-            navigation through <code>pushState</code>, <code>replaceState</code>
-            , and back/forward navigation.
+          <Step number="3" title="Create the event client">
+            Add this helper to your website. It stores a random anonymous ID in
+            first-party local storage and sends the exact payload accepted by
+            Pulse.
+            <div className="mt-4">
+              <CodeBlock
+                variants={{
+                  typescript: {
+                    code: withPublicEnvironment(
+                      apiTypescript,
+                      typescriptEnvironment,
+                    ),
+                    label: "lib/pulse.ts",
+                    language: "ts",
+                  },
+                  javascript: {
+                    code: withPublicEnvironment(
+                      apiJavascript,
+                      javascriptEnvironment,
+                    ),
+                    label: "lib/pulse.js",
+                    language: "js",
+                  },
+                }}
+              />
+            </div>
+          </Step>
+          <Callout kind="note" title="NEXT_PUBLIC does not make the ID secret">
+            Next.js includes these values in the browser bundle. That is
+            expected: the tracking ID is a public website identifier, not a
+            credential. Never place database URLs, authentication secrets, or
+            service keys in a <code>NEXT_PUBLIC_</code> variable.
+          </Callout>
+          <Callout kind="tip" title="You control when events are sent">
+            Call <code>trackPageView()</code> on the first render and whenever
+            the active route changes. The Next.js example below handles both.
           </Callout>
         </Section>
 
@@ -180,21 +226,37 @@ export default async function DocsPage({
         >
           <Example
             title="HTML"
-            description="Place the generated tag before the closing head tag so it is available on every page."
-            code={`<head>\n  <!-- Your existing tags -->\n  ${snippet.replaceAll("\n", "\n  ")}\n</head>`}
+            description="Place this module near the end of the page body to send a page view directly."
+            code={htmlSnippet}
             label="index.html"
           />
           <Example
-            title="Next.js App Router"
-            description="Add next/script to the root layout. afterInteractive runs the tracker in the browser after hydration."
+            title="Next.js tracking component"
+            description="Create this client component after adding the event client above. It sends on initial load and App Router navigation."
             variants={{
               typescript: {
                 code: nextTypescript,
-                label: "app/layout.tsx",
+                label: "components/pulse-analytics.tsx",
                 language: "tsx",
               },
               javascript: {
                 code: nextJavascript,
+                label: "components/pulse-analytics.jsx",
+                language: "jsx",
+              },
+            }}
+          />
+          <Example
+            title="Next.js root layout"
+            description="Import and render the tracking component once in the external website's root layout. Keep your existing providers, navigation, and page structure."
+            variants={{
+              typescript: {
+                code: nextLayoutTypescript,
+                label: "app/layout.tsx",
+                language: "tsx",
+              },
+              javascript: {
+                code: nextLayoutJavascript,
                 label: "app/layout.jsx",
                 language: "jsx",
               },
@@ -202,7 +264,7 @@ export default async function DocsPage({
           />
           <Example
             title="React"
-            description="Mount this component once near the root of your app. The effect appends the same dependency-free tracker."
+            description="Mount this component once near the root. If your router keeps the component mounted, call trackPageView again when its route value changes."
             variants={{
               typescript: {
                 code: reactTypescript,
@@ -226,8 +288,8 @@ export default async function DocsPage({
           <ol className="space-y-3">
             {[
               "A visitor opens a page on your external website.",
-              "tracker.js loads and creates a website-scoped anonymous ID in first-party local storage.",
-              "It creates a page_view event and sends it to POST /api/track.",
+              "Your event client reads or creates a website-scoped anonymous ID in first-party local storage.",
+              "Your code creates a page_view payload and sends it directly to POST /api/track.",
               `Pulse checks the payload, rate limit, tracking ID, and exact Origin against ${websiteDomain}.`,
               "The server sanitizes the path, title, and referrer, derives browser and device from the request, then stores the visitor, session, and page view.",
               "The dashboard reads those records and refreshes its metrics and recent activity.",
@@ -248,7 +310,7 @@ export default async function DocsPage({
             items={[
               "Visitor",
               "External website",
-              "Tracking script",
+              "Event client",
               "Analytics API",
               "Database",
               "Analytics dashboard",
@@ -260,7 +322,7 @@ export default async function DocsPage({
           <p className="mb-4 mt-2">
             This is the complete accepted client payload. <code>title</code>,{" "}
             <code>referrer</code>, and <code>timestamp</code> are optional. The
-            tracker creates the anonymous ID automatically.
+            event client creates the anonymous ID automatically.
           </p>
           <CodeBlock code={payload} label="page-view.json" language="json" />
           <Callout kind="note" title="Privacy and sanitization">
@@ -297,7 +359,7 @@ export default async function DocsPage({
                 response.
               </>
             ) : (
-              "Live verification becomes available after you create a website and install its personalized tracking snippet."
+              "Live verification becomes available after you create a website and add its personalized event client."
             )}
           </p>
           {lastEvent && (
@@ -343,10 +405,9 @@ export default async function DocsPage({
         >
           <Trouble title="No events are appearing">
             Confirm the copied ID is <code>{trackingId}</code>. In browser
-            DevTools, check that <code>{trackerUrl}</code> loads and that the
-            Network request to <code>/api/track</code> returns <code>202</code>.
-            Also confirm the tag is not marked{" "}
-            <code>data-disabled=&quot;true&quot;</code>.
+            DevTools, check that the Network request to <code>{endpoint}</code>
+            returns <code>202</code>. Confirm that <code>trackPageView()</code>
+            runs after the page is mounted and whenever the route changes.
           </Trouble>
           <Trouble title="401 / 403 errors">
             The ingestion endpoint does not use login authentication and does
@@ -367,10 +428,10 @@ export default async function DocsPage({
             the dashboard URL.
           </Trouble>
           <Trouble title="Local development">
-            The tracker intentionally ignores localhost, 127.0.0.1, ::1, and
-            *.localhost. To collect local traffic, add{" "}
-            <code>data-track-localhost=&quot;true&quot;</code> and register the
-            exact local host and port as a separate website.
+            Localhost traffic is tracked automatically. Register the exact local
+            hostname and port, such as <code>localhost:3001</code>, as a
+            separate website so its Origin passes validation. Use a separate
+            tracking ID for local and deployed environments.
           </Trouble>
           <Trouble title="Other response codes">
             <code>400</code> means the JSON or fields are invalid,{" "}

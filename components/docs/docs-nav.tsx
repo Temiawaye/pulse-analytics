@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 export const docsNavigation = [
   ["getting-started", "Getting started"],
   ["connect", "Connect your website"],
-  ["install", "Install tracking script"],
+  ["install", "Create event client"],
   ["frameworks", "Framework guides"],
   ["events", "Sending events"],
   ["custom-events", "Custom events"],
